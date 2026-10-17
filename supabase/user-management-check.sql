@@ -1,4 +1,4 @@
--- Execute after user-management.sql. Every change is rolled back.
+-- Checks the account-ban functions in schema.sql. Every change is rolled back.
 begin;
 select set_config('request.jwt.claims', json_build_object('sub', (select user_id from public.admins where role_id = 0 limit 1), 'role', 'authenticated')::text, true);
 set local role authenticated;

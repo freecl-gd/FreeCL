@@ -1,4 +1,4 @@
--- Self-check for best-record.sql. Changes nothing: the last line raises, which rolls
+-- Self-check for keep_best_record (schema.sql). Changes nothing: the last line raises, which rolls
 -- every insert back, and the error message IS the report. Needs one classic and one
 -- platformer record to exist.
 do $$

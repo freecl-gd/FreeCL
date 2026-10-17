@@ -46,10 +46,16 @@ npx supabase functions deploy notify-map --no-verify-jwt   # DB Webhook이 호�
 
 ## 데이터베이스
 
-`supabase/*.sql`은 운영 DB에 시간 순으로 적용해 온 패치 모음이다. 빈 프로젝트에서 처음부터 재현하는 순서는 아직 정리돼 있지 않다.
+| 파일 | 용도 |
+|---|---|
+| `supabase/schema.sql` | 운영 DB의 현재 구조 전체(타입·테이블·함수·뷰·트리거·RLS·권한·Storage). 빈 Supabase 프로젝트에서 한 번 실행한다. |
+| `supabase/notify-map-webhook.sql` | 등재 Discord 알람용 Database Webhook. `<NOTIFY_SECRET>`을 실제 값으로 바꿔 실행한다. |
+| `supabase/export-schema.sql` | 운영 DB에서 `schema.sql`을 다시 뽑는 읽기 전용 스크립트. 구조를 바꾼 뒤 SQL Editor에서 실행하고 결과로 `schema.sql`을 교체한다. |
+
+SQL Editor에 붙여 넣어 실행하거나 CLI로 실행한다.
 
 ```bash
-npx supabase db query --linked=false --project-ref <ref> -f supabase/<file>.sql
+npx supabase db query --linked -f supabase/schema.sql
 ```
 
 ## 검사
