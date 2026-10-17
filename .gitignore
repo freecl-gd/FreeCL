@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.firebase/
+
+# Secrets. Never commit these.
+.env.local
+service-account.json
+key.json
+supabase/.temp/
+
+# Local working notes. They carry account emails and internal history, so they stay off a
+# public repository.
+CLAUDE.md
+STATUS.md
+notation-log.md
+/a
