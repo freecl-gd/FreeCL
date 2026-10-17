@@ -1,8 +1,6 @@
--- FreeCL database schema: the live state as of 2026-10-17, exported with
--- supabase/export-schema.sql. Run once on an empty Supabase project, then
--- notify-map-webhook.sql (needs NOTIFY_SECRET) for the Discord alarm.
--- Order: types, tables, functions (bodies unchecked), constraints (two call
--- length_seconds), views, indexes, triggers, RLS, policies, grants, storage, seed rows.
+-- FreeCL database schema: the live state, exported with supabase/export-schema.sql.
+-- Run once on an empty Supabase project, then notify-map-webhook.sql (needs
+-- NOTIFY_SECRET) for the Discord alarm. Regenerate after any schema change.
 
 set check_function_bodies = off;
 
@@ -1086,18 +1084,16 @@ create policy avatars_update on storage.objects as PERMISSIVE for UPDATE to auth
 -- Table grants (Supabase grants everything by default; start from nothing)
 
 revoke all on all tables in schema public from anon, authenticated, service_role;
-grant REFERENCES, TRIGGER, TRUNCATE on public.admin_roles to anon;
-grant REFERENCES, TRIGGER, TRUNCATE on public.admin_roles to authenticated;
+
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.admin_roles to service_role;
-grant REFERENCES, TRIGGER, TRUNCATE on public.admins to anon;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.admins to authenticated;
+grant SELECT on public.admins to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.admins to service_role;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.blocked_emails to service_role;
 grant SELECT on public.extra_legacy_records to anon;
 grant DELETE, INSERT, SELECT, UPDATE on public.extra_legacy_records to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.extra_legacy_records to service_role;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.extra_map_scores to anon;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.extra_map_scores to authenticated;
+grant SELECT on public.extra_map_scores to anon;
+grant SELECT on public.extra_map_scores to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.extra_map_scores to service_role;
 grant SELECT on public.extra_maps to anon;
 grant DELETE, INSERT, SELECT, UPDATE on public.extra_maps to authenticated;
@@ -1105,42 +1101,42 @@ grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.ex
 grant SELECT on public.extra_position_history to anon;
 grant SELECT on public.extra_position_history to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.extra_position_history to service_role;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.extra_rankings to anon;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.extra_rankings to authenticated;
+grant SELECT on public.extra_rankings to anon;
+grant SELECT on public.extra_rankings to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.extra_rankings to service_role;
 grant SELECT on public.extra_records to anon;
 grant DELETE, INSERT, SELECT, UPDATE on public.extra_records to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.extra_records to service_role;
 grant DELETE, SELECT, UPDATE on public.extra_submissions to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.extra_submissions to service_role;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.legacy_records to anon;
-grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.legacy_records to authenticated;
+grant SELECT on public.legacy_records to anon;
+grant DELETE, INSERT, SELECT, UPDATE on public.legacy_records to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.legacy_records to service_role;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.map_scores to anon;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.map_scores to authenticated;
+grant SELECT on public.map_scores to anon;
+grant SELECT on public.map_scores to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.map_scores to service_role;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.maps to anon;
-grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.maps to authenticated;
+grant SELECT on public.maps to anon;
+grant DELETE, INSERT, SELECT, UPDATE on public.maps to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.maps to service_role;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.position_history to anon;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.position_history to authenticated;
+grant SELECT on public.position_history to anon;
+grant SELECT on public.position_history to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.position_history to service_role;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.profiles to anon;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.profiles to authenticated;
+grant SELECT on public.profiles to anon;
+grant SELECT, UPDATE on public.profiles to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.profiles to service_role;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.rankings to anon;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.rankings to authenticated;
+grant SELECT on public.rankings to anon;
+grant SELECT on public.rankings to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.rankings to service_role;
-grant REFERENCES, SELECT, TRIGGER, TRUNCATE on public.records to anon;
-grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.records to authenticated;
+grant SELECT on public.records to anon;
+grant DELETE, INSERT, SELECT, UPDATE on public.records to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.records to service_role;
-grant REFERENCES, TRIGGER, TRUNCATE on public.submissions to anon;
-grant DELETE, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.submissions to authenticated;
+grant DELETE, SELECT, UPDATE on public.submissions to authenticated;
 grant DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE on public.submissions to service_role;
 
 -- Function grants (functions not listed keep the default PUBLIC execute)
 
 revoke execute on all functions in schema public from anon, authenticated, service_role;
+
 grant execute on function admin_list_users(text,integer) to authenticated;
 grant execute on function extra_approve_submission(bigint,integer) to authenticated;
 grant execute on function extra_create_map(jsonb,map_type,integer) to authenticated;
@@ -1172,4 +1168,5 @@ insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_typ
 
 -- Seed rows
 
-insert into public.admin_roles (id, name) values (0, 'root'), (1, 'admin') on conflict (id) do nothing;
+insert into public.admin_roles (id, name) values (0, 'root') on conflict (id) do nothing;
+insert into public.admin_roles (id, name) values (1, 'admin') on conflict (id) do nothing;
